@@ -1,0 +1,4 @@
+interface:
+  display_name: "LangGraph Python Production"
+  short_description: "Production deployment, testing, and observability for LangGraph."
+  default_prompt: "Use this skill when preparing LangGraph Python systems for deployment, observability, studio, and runtime operations."

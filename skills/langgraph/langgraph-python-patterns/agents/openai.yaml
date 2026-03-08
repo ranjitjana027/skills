@@ -1,0 +1,4 @@
+interface:
+  display_name: "LangGraph Python Patterns"
+  short_description: "Reusable LangGraph patterns for memory, RAG, subgraphs, and SQL."
+  default_prompt: "Use this skill when implementing LangGraph Python workflows, subgraphs, memory, RAG, and SQL agent patterns."

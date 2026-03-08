@@ -1,0 +1,4 @@
+interface:
+  display_name: "LangGraph Python Troubleshooting"
+  short_description: "Debug LangGraph Python failures with repeatable diagnosis flows."
+  default_prompt: "Use this skill when debugging LangGraph Python runtime errors, recursion issues, chat history problems, or checkpointing failures."

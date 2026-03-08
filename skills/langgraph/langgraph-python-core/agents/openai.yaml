@@ -1,0 +1,4 @@
+interface:
+  display_name: "LangGraph Python Core"
+  short_description: "Core LangGraph APIs, setup, and agent architecture in Python."
+  default_prompt: "Use this skill when building or refactoring LangGraph Python agents using Graph API or Functional API."
