@@ -72,6 +72,17 @@
         "./skills/python-style/python-style-rules",
         "./skills/python-style/python-type-annotations"
       ]
+    },
+    {
+      "name": "go-style",
+      "description": "Go style and best practices skill set covering formatting/naming/commentary style, language and error handling rules, and testing conventions",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/go-style/go-style-rules",
+        "./skills/go-style/go-language-rules",
+        "./skills/go-style/go-testing"
+      ]
     }
   ]
 }
