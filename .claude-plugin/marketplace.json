@@ -61,6 +61,17 @@
         "./skills/langgraph/langgraph-python-production",
         "./skills/langgraph/langgraph-python-troubleshooting"
       ]
+    },
+    {
+      "name": "python-style",
+      "description": "Python style and best practices skill set covering language rules, formatting/naming/documentation style, and type annotations",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/python-style/python-language-rules",
+        "./skills/python-style/python-style-rules",
+        "./skills/python-style/python-type-annotations"
+      ]
     }
   ]
 }
