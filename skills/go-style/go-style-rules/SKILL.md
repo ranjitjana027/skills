@@ -1,6 +1,7 @@
 ---
 name: go-style-rules
 description: Enforce Go formatting, naming, commentary, and import style best practices when writing or reviewing Go code. Use when checking Go code for naming conventions, package names, receiver names, constants, initialisms, comment format, import grouping, doc comments, or gofmt compliance. Trigger when the user asks to write idiomatic Go, review Go code for style, name Go types/functions/packages/variables, format Go imports, or write Go doc comments.
+license: Complete terms in LICENSE.txt
 ---
 
 # Go Style Guide: Style Rules

@@ -1,6 +1,7 @@
 ---
 name: python-language-rules
 description: Enforce Python language best practices when writing, reviewing, or refactoring Python code. Use when checking Python code for correctness, reviewing imports structure, handling exceptions, using lambdas, generators, comprehensions, properties, decorators, default arguments, global state, threading, or any Python language feature. Trigger when the user asks to write Pythonic code, review Python for best practices, fix bad Python patterns, or apply Python style conventions.
+license: Complete terms in LICENSE.txt
 ---
 
 # Python Style Guide: Language Rules
