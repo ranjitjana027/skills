@@ -1,12 +1,12 @@
 {
   "name": "anthropic-agent-skills",
   "owner": {
-    "name": "Keith Lazuka",
-    "email": "klazuka@anthropic.com"
+    "name": "Ranjit Jana",
+    "email": "40226912+ranjitjana027@users.noreply.github.com"
   },
   "metadata": {
-    "description": "Anthropic example skills",
-    "version": "1.0.0"
+    "description": "Anthropic example skills fork with additional LangGraph, Python, and Go style skills",
+    "version": "1.1.0"
   },
   "plugins": [
     {
