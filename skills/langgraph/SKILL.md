@@ -1,6 +1,7 @@
 ---
 name: langgraph
 description: Build stateful AI applications with LangGraph in Python. Trigger when users ask about StateGraph, MessagesState, nodes, edges, ToolNode, checkpointers, streaming, subgraphs, Graph API, Functional API, deployment, or LangGraph runtime errors.
+license: Complete terms in LICENSE.txt
 ---
 
 # LangGraph (Python)

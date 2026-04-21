@@ -17,12 +17,33 @@ Each skill is self-contained in its own folder with a `SKILL.md` file containing
 
 Many skills in this repo are open source (Apache 2.0). We've also included the document creation & editing skills that power [Claude's document capabilities](https://www.anthropic.com/news/create-files) under the hood in the [`skills/docx`](./skills/docx), [`skills/pdf`](./skills/pdf), [`skills/pptx`](./skills/pptx), and [`skills/xlsx`](./skills/xlsx) subfolders. These are source-available, not open source, but we wanted to share these with developers as a reference for more complex skills that are actively used in a production AI application.
 
+## Custom Skills
+
+This fork includes additional skills for Python and Go development:
+
+- **LangGraph** - Build stateful AI applications with LangGraph in Python (core, patterns, production, troubleshooting)
+- **Python Style** - Python formatting, language rules, and type annotation best practices
+- **Go Style** - Go formatting, language rules, and testing best practices
+
+These custom skills are licensed under MIT. See the respective `LICENSE.txt` files in each skill directory.
+
 ## Disclaimer
 
 **These skills are provided for demonstration and educational purposes only.** While some of these capabilities may be available in Claude, the implementations and behaviors you receive from Claude may differ from what is shown in these skills. These skills are meant to illustrate patterns and possibilities. Always test skills thoroughly in your own environment before relying on them for critical tasks.
 
 # Skill Sets
-- [./skills](./skills): Skill examples for Creative & Design, Development & Technical, Enterprise & Communication, and Document Skills
+
+**Original Anthropic Skills:**
+- Creative & Design: algorithmic-art, brand-guidelines, canvas-design, frontend-design, theme-factory
+- Development & Technical: claude-api, mcp-builder, skill-creator, web-artifacts-builder, webapp-testing
+- Enterprise & Communication: doc-coauthoring, internal-comms, slack-gif-creator
+- Document Skills: docx, pdf, pptx, xlsx
+
+**Custom Skills (MIT Licensed):**
+- LangGraph: langgraph-python-core, langgraph-python-patterns, langgraph-python-production, langgraph-python-troubleshooting
+- Python Style: python-language-rules, python-style-rules, python-type-annotations
+- Go Style: go-style-rules, go-language-rules, go-testing
+
 - [./spec](./spec): The Agent Skills specification
 - [./template](./template): Skill template
 
@@ -31,22 +52,33 @@ Many skills in this repo are open source (Apache 2.0). We've also included the d
 ## Claude Code
 You can register this repository as a Claude Code Plugin marketplace by running the following command in Claude Code:
 ```
-/plugin marketplace add anthropics/skills
+/plugin marketplace add ranjitjana027/skills
 ```
 
 Then, to install a specific set of skills:
 1. Select `Browse and install plugins`
 2. Select `anthropic-agent-skills`
-3. Select `document-skills` or `example-skills`
+3. Choose from the available plugins:
+   - `document-skills` - docx, pdf, pptx, xlsx
+   - `example-skills` - algorithmic-art, mcp-builder, skill-creator, etc.
+   - `claude-api` - Claude API integration
+   - `langgraph-skills` - LangGraph Python (core, patterns, production, troubleshooting)
+   - `python-style` - Python language, formatting, and type annotations
+   - `go-style` - Go language, formatting, and testing
 4. Select `Install now`
 
-Alternatively, directly install either Plugin via:
+Alternatively, directly install any plugin via:
 ```
 /plugin install document-skills@anthropic-agent-skills
-/plugin install example-skills@anthropic-agent-skills
+/plugin install langgraph-skills@anthropic-agent-skills
+/plugin install python-style@anthropic-agent-skills
+/plugin install go-style@anthropic-agent-skills
 ```
 
-After installing the plugin, you can use the skill by just mentioning it. For instance, if you install the `document-skills` plugin from the marketplace, you can ask Claude Code to do something like: "Use the PDF skill to extract the form fields from `path/to/some-file.pdf`"
+After installing the plugin, you can use the skill by just mentioning it. For instance:
+- "Use the PDF skill to extract form fields from `path/to/file.pdf`"
+- "Use the python-style-rules skill to review this code"
+- "Use the langgraph skill to build a stateful agent"
 
 ## Claude.ai
 

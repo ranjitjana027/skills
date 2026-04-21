@@ -1,6 +1,7 @@
 ---
 name: python-type-annotations
 description: Enforce Python type annotation best practices when writing or reviewing Python type hints. Use when adding type hints to Python code, reviewing mypy or pytype errors, annotating function signatures, using Optional/Union/Any, defining TypeVar or TypeAlias, annotating generics, handling NoneType, or following PEP 484/526 conventions. Trigger when the user asks about Python type hints, type annotations, static type checking, mypy, pytype, or typing module usage in Python.
+license: Complete terms in LICENSE.txt
 ---
 
 # Python Style Guide: Type Annotations

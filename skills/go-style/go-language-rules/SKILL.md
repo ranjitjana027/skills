@@ -1,6 +1,7 @@
 ---
 name: go-language-rules
 description: Enforce Go language feature best practices when writing or reviewing Go code. Use when handling errors, using interfaces, goroutines, panics, contexts, receiver types, generics, variable declarations, struct copying, switch statements, synchronous vs asynchronous design, or passing values vs pointers. Trigger when the user asks about idiomatic Go patterns, error handling, goroutine lifecycle, context usage, interface design, pointer vs value receivers, or any Go language feature question.
+license: Complete terms in LICENSE.txt
 ---
 
 # Go Style Guide: Language Rules

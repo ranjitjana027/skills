@@ -1,6 +1,7 @@
 ---
 name: go-testing
 description: Enforce Go testing best practices when writing or reviewing Go tests. Use when writing table-driven tests, test helpers, assertion logic, failure messages, goroutines in tests, subtests, test doubles, or benchmarks. Trigger when the user asks about Go test structure, how to write Go tests idiomatically, t.Error vs t.Fatal, cmp.Equal vs reflect.DeepEqual, test naming, or test package organization in Go.
+license: Complete terms in LICENSE.txt
 ---
 
 # Go Style Guide: Testing

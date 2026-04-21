@@ -1,6 +1,7 @@
 ---
 name: python-style-rules
 description: Enforce Python formatting, naming, and documentation best practices when writing or reviewing Python code. Use when checking line length, indentation, whitespace, blank lines, naming conventions, docstrings, comments, string formatting, import ordering, function length, or the main guard pattern. Trigger when the user asks to format Python code, write docstrings, name variables/functions/classes, review Python for style issues, or apply Python style conventions for any formatting concern.
+license: Complete terms in LICENSE.txt
 ---
 
 # Python Style Guide: Style Rules
