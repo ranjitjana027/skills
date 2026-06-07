@@ -51,6 +51,15 @@
       ]
     },
     {
+      "name": "skeino",
+      "description": "Serve, configure, embed, and call a skeino server — the embeddable replacement for the langgraph dev HTTP server, exposing a LangGraph-Platform-compatible REST API over any compiled LangGraph graph",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/skeino"
+      ]
+    },
+    {
       "name": "langgraph-skills",
       "description": "LangGraph Python skill set covering foundations, patterns, production operations, and troubleshooting",
       "source": "./",
