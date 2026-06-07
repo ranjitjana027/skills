@@ -64,6 +64,8 @@ if __name__ == "__main__":
 graph must be compiled with skeino's resolved checkpointer:
 
 ```python
+from my_app.graph import builder  # the StateGraph, *before* .compile()
+
 def build(checkpointer):
     return builder.compile(checkpointer=checkpointer)
 
@@ -129,15 +131,27 @@ store** (e.g. `redis`, or a custom scheme) is rejected at startup — otherwise
 graph state would persist while the thread/run list silently evaporated. Opt out
 with `allow_ephemeral_metadata=True`.
 
-**Custom backend** — register one and select it via `checkpointer_scheme`:
+**Custom backend** — register a builder and select it via `checkpointer_scheme`.
+The builder is an **async context manager** taking a `CheckpointerSpec`
+(`.uri`, `.options`) and yielding a `BaseCheckpointSaver`, so resources are
+released on shutdown:
 
 ```python
-from skeino.persistence import register_checkpointer
+from contextlib import asynccontextmanager
+from skeino.persistence import register_checkpointer, CheckpointerSpec
 
 @register_checkpointer("redis")
-def _build_redis(spec):  # returns an async context manager yielding a BaseCheckpointSaver
-    ...
+@asynccontextmanager
+async def _build_redis(spec: CheckpointerSpec):
+    saver = make_redis_saver(spec.uri, **spec.options)  # a BaseCheckpointSaver
+    try:
+        yield saver
+    finally:
+        await saver.aclose()
 ```
+
+A custom durable scheme has no native metadata store, so pair it with a
+supported metadata scheme or set `allow_ephemeral_metadata=True` (see below).
 
 ## Token-level streaming
 
@@ -161,12 +175,19 @@ parent.mount("/agent", create_app(graphs={...}, settings=...))
 It speaks the LangGraph Platform dialect, so the official client works:
 
 ```python
+import asyncio
 from langgraph_sdk import get_client
-client = get_client(url="http://localhost:2024")
-thread = await client.threads.create()
-async for chunk in client.runs.stream(thread["thread_id"], "my_agent",
-                                       input={"messages": [{"role": "user", "content": "hi"}]}):
-    print(chunk.event, chunk.data)
+
+async def main():
+    client = get_client(url="http://localhost:2024")
+    thread = await client.threads.create()
+    async for chunk in client.runs.stream(
+        thread["thread_id"], "my_agent",
+        input={"messages": [{"role": "user", "content": "hi"}]},
+    ):
+        print(chunk.event, chunk.data)
+
+asyncio.run(main())  # in a notebook, just `await main()`
 ```
 
 Or raw HTTP. Key endpoints:
