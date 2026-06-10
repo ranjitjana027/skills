@@ -24,9 +24,10 @@ speaks the LangGraph Platform REST dialect — so LangGraph Studio and the
 The public surface is small: **`create_app`**, **`SkeinoSettings`**,
 **`from_langgraph_json`**, **`GraphRegistry`** (all importable from `skeino`).
 
-> Targets skeino **1.0.0+**. 1.0.0 made persistence *scheme-authoritative* and
+> Targets skeino **1.1.0+**. 1.0.0 made persistence *scheme-authoritative* and
 > moved database drivers behind extras (see Persistence); on 0.x the selector was
-> `postgres_uri`.
+> `postgres_uri`. 1.1.0 made MongoDB honor the database named in the URI path
+> and added per-run token usage reporting.
 
 ## Install
 
@@ -126,6 +127,11 @@ string for it, and a URI that doesn't match the scheme is ignored (e.g.
 | `mongodb` / `mongo` | `MongoDBSaver` + native metadata store | Yes | `skeino[mongodb]` |
 | `redis` | lazy `redis` checkpointer builder | checkpointer only | `pip install langgraph-checkpoint-redis` |
 
+For MongoDB, both stores use the database named in the `mongodb://…/<db>` URI
+path (1.1.0+). A URI without a path keeps the legacy defaults —
+`checkpointing_db` for checkpoints, `skeino` for metadata; data in those
+defaults is **not** migrated when you add a path to the URI.
+
 **Fail-loud guard.** A durable checkpointer scheme that has **no native metadata
 store** (e.g. `redis`, or a custom scheme) is rejected at startup — otherwise
 graph state would persist while the thread/run list silently evaporated. Opt out
@@ -209,6 +215,14 @@ Run options on `POST /runs[/stream]`: `input` **or** `command` (resume),
 `stream_mode` (`values`/`updates`/`messages`/`events`/…), `multitask_strategy`
 (`enqueue` default, or `reject`/`rollback`/`interrupt` → 409 when busy),
 `if_not_exists: "create"` to auto-create the thread.
+
+**Token usage** — each run's LLM token total is measured server-side (a usage
+callback attached to the run's config; per-run, not per-thread) and surfaced on
+the sync endpoint via the `X-Tokens-Used` response header and on the streaming
+endpoint in the terminal `end` event's `usage.total_tokens`. Providers must
+populate `usage_metadata` (+ `model_name`) on their messages; for
+`langchain-openai` **streaming** that needs `ChatOpenAI(stream_usage=True)`,
+otherwise streamed runs report 0.
 
 ## v1 scope & gotchas
 
