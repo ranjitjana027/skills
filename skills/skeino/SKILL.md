@@ -24,9 +24,10 @@ speaks the LangGraph Platform REST dialect — so LangGraph Studio and the
 The public surface is small: **`create_app`**, **`SkeinoSettings`**,
 **`from_langgraph_json`**, **`GraphRegistry`** (all importable from `skeino`).
 
-> Targets skeino **1.0.0+**. 1.0.0 made persistence *scheme-authoritative* and
-> moved database drivers behind extras (see Persistence); on 0.x the selector was
-> `postgres_uri`.
+> Targets skeino **2.0.0+**. 2.0.0 made streaming standards-faithful and **removed
+> the `agent_nodes` / `status_field` settings** (see Live progress streaming).
+> 1.0.0 made persistence *scheme-authoritative* and moved database drivers behind
+> extras (see Persistence); on 0.x the selector was `postgres_uri`.
 
 ## Install
 
@@ -102,7 +103,6 @@ app = from_langgraph_json("langgraph.json")  # optional settings= overrides
 | `allow_ephemeral_metadata` | Opt out of the startup guard that rejects a durable checkpointer paired with the in-memory metadata store (see Persistence). |
 | `default_assistant_id` | The served assistant (key in `graphs`). |
 | `assistant_name` / `assistant_description` / `assistant_namespace` | Assistant identity (the namespace derives the assistant's deterministic UUID). |
-| `agent_nodes` / `status_field` | Enable token-level message streaming (see below). |
 | `server_title` / `server_description` / `server_version` / `welcome_message` | Presentation. |
 | `cors_origins` / `cors_methods` / `cors_headers` | CORS. |
 
@@ -153,14 +153,27 @@ async def _build_redis(spec: CheckpointerSpec):
 A custom durable scheme has no native metadata store, so pair it with a
 supported metadata scheme or set `allow_ephemeral_metadata=True` (see below).
 
-## Token-level streaming
+## Live progress streaming
 
-To stream assistant tokens incrementally (not just whole-state snapshots), tell
-skeino which graph nodes emit assistant messages, and optionally a status field:
+skeino forwards each requested `stream_mode` faithfully, like a real LangGraph
+server: `values` (full state per super-step), `updates` (per-node deltas),
+`custom` (graph-emitted events). `values` and `updates` are passed through a
+fail-closed output-key filter so internal state never leaks.
+
+For low-bandwidth live UIs, have clients request `["updates", "custom"]` instead
+of `["values"]` (each node's new message only, no full-history re-send), and emit
+progress from your graph nodes via LangGraph's `get_stream_writer()`:
 
 ```python
-SkeinoSettings(agent_nodes=frozenset({"chatbot"}), status_field="pipeline_status")
+from langgraph.config import get_stream_writer
+
+def my_node(state):
+    get_stream_writer()({"type": "status", "message": "Working…"})
+    ...
 ```
+
+> Before 2.0.0 this was configured with the removed `agent_nodes` / `status_field`
+> settings; skeino now emits standard LangGraph modes instead.
 
 ## Embed in an existing FastAPI app
 
