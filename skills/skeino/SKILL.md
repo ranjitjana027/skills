@@ -24,10 +24,14 @@ speaks the LangGraph Platform REST dialect — so LangGraph Studio and the
 The public surface is small: **`create_app`**, **`SkeinoSettings`**,
 **`from_langgraph_json`**, **`GraphRegistry`** (all importable from `skeino`).
 
-> Targets skeino **2.0.0+**. 2.0.0 made streaming standards-faithful and **removed
-> the `agent_nodes` / `status_field` settings** (see Live progress streaming).
-> 1.0.0 made persistence *scheme-authoritative* and moved database drivers behind
-> extras (see Persistence); on 0.x the selector was `postgres_uri`.
+> Targets skeino **3.0.0+**. **3.0.0 is breaking:** `POST /threads/{id}/runs` no
+> longer runs to completion — it now starts the graph in a background task and
+> returns immediately with a `pending`/`running` run. Get the old blocking
+> behavior from the new `POST /threads/{id}/runs/wait` (see Runs, below).
+> 2.0.0 made streaming standards-faithful and **removed the `agent_nodes` /
+> `status_field` settings** (see Live progress streaming). 1.0.0 made
+> persistence *scheme-authoritative* and moved database drivers behind extras
+> (see Persistence); on 0.x the selector was `postgres_uri`.
 
 ## Install
 
@@ -203,6 +207,13 @@ async def main():
 asyncio.run(main())  # in a notebook, just `await main()`
 ```
 
+**Stateless runs** (no thread lifecycle to manage): `POST /runs[/wait|/stream]`
+and `POST /runs/batch` run against a thread created and deleted inside the
+request — no thread id in, none out. `/runs` and `/runs/batch` block until
+done (skeino has no background executor for these); `checkpoint` is rejected
+(400) since there's no history to resume. Use the thread-scoped routes for
+anything you need to inspect, resume, or continue.
+
 Or raw HTTP. Key endpoints:
 
 - **Threads:** `POST /threads`, `POST /threads/search`, `GET /threads/{id}`,
@@ -212,16 +223,24 @@ Or raw HTTP. Key endpoints:
   (human-in-the-loop edit → new checkpoint), `GET /threads/{id}/state/{checkpoint_id}`
   and `POST /threads/{id}/state/checkpoint` (read at a checkpoint),
   `GET|POST /threads/{id}/history`.
-- **Runs:** `POST /threads/{id}/runs` (run to completion),
-  `POST /threads/{id}/runs/stream` (SSE: `event:`/`data:` frames),
-  `GET /threads/{id}/runs`.
+- **Runs (background):** `POST /threads/{id}/runs` starts the graph in a
+  background task and returns immediately with a `pending`/`running` run.
+  `POST /threads/{id}/runs/wait` runs to completion and returns the final
+  graph state values (the old synchronous behavior). `GET
+  /threads/{id}/runs/{run_id}/join` waits for an in-flight run to finish and
+  returns its output. `POST /threads/{id}/runs/{run_id}/cancel?action=interrupt|rollback`
+  cancels it (`rollback` also deletes the run row); `DELETE
+  /threads/{id}/runs/{run_id}` removes a terminal run (409 if still active).
+  `POST /threads/{id}/runs/stream` streams SSE (`event:`/`data:` frames).
+  `GET /threads/{id}/runs` lists them.
 - **Assistants / meta:** `POST /assistants/search`,
   `GET /assistants/{id}/schemas`, `GET /api/health`, `GET /info`.
 
-Run options on `POST /runs[/stream]`: `input` **or** `command` (resume),
+Run options on `POST /runs[/wait|/stream]`: `input` **or** `command` (resume),
 `stream_mode` (`values`/`updates`/`messages`/`events`/…), `multitask_strategy`
-(`enqueue` default, or `reject`/`rollback`/`interrupt` → 409 when busy),
-`if_not_exists: "create"` to auto-create the thread.
+(`enqueue` default; `reject` → 409 when busy; `interrupt` cancels the active
+run; `rollback` cancels **and deletes** it), `if_not_exists: "create"` to
+auto-create the thread.
 
 ## v1 scope & gotchas
 
@@ -231,6 +250,10 @@ Run options on `POST /runs[/stream]`: `input` **or** `command` (resume),
   are ignored (warned). There is no Store API, auth, or cron support yet.
 - Concurrency is **one run per thread**, enforced with in-process locks — correct
   for single-process deployments only.
+- Background runs (3.0.0+) live in the server process's own `asyncio` event
+  loop, not a durable job queue — a graceful shutdown marks in-flight runs
+  `interrupted`, but a crash loses them. Not a fit for a multi-process/worker
+  deployment expecting cross-process run recovery.
 - In-memory persistence (`checkpointer_scheme="memory"`, the default) is **not
   durable** — pick a durable scheme (`postgres`/`sqlite`/`mongodb`) for anything
   real, and install its extra.
