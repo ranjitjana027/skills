@@ -24,7 +24,8 @@ speaks the LangGraph Platform REST dialect — so LangGraph Studio and the
 The public surface is small: **`create_app`**, **`SkeinoSettings`**,
 **`from_langgraph_json`**, **`GraphRegistry`** (all importable from `skeino`).
 
-> Targets skeino **3.0.0+**. **3.0.0 is breaking:** `POST /threads/{id}/runs` no
+> Targets skeino **3.0.0+** — **3.0.1+** for graphs that pause on `interrupt()`
+> (see Human-in-the-loop, below). **3.0.0 is breaking:** `POST /threads/{id}/runs` no
 > longer runs to completion — it now starts the graph in a background task and
 > returns immediately with a `pending`/`running` run. Get the old blocking
 > behavior from the new `POST /threads/{id}/runs/wait` (see Runs, below).
@@ -235,6 +236,24 @@ Or raw HTTP. Key endpoints:
   `GET /threads/{id}/runs` lists them.
 - **Assistants / meta:** `POST /assistants/search`,
   `GET /assistants/{id}/schemas`, `GET /api/health`, `GET /info`.
+
+### Human-in-the-loop (`interrupt()`)
+
+A graph node that calls LangGraph's `interrupt(value)` ends the run cleanly and
+parks the thread waiting for a decision (3.0.1+; earlier versions dropped the
+pause on the way to the client):
+
+- The pending request streams on the reserved `__interrupt__` channel of
+  `values` and `updates` events as `[{"value": ..., "id": ...}]` — the shape
+  `useStream().interrupt` reads.
+- The thread's `status` becomes `interrupted`, and the request stays readable in
+  the thread's `interrupts` and in its state's `tasks[].interrupts`.
+- Resume with another run on the same thread carrying
+  `{"command": {"resume": <decision>}}`; `interrupt()` returns `<decision>` when
+  the node replays.
+
+Output-schema filtering never strips `__interrupt__` — reserved dunder channels
+are protocol, not graph state.
 
 Run options on `POST /runs[/wait|/stream]`: `input` **or** `command` (resume),
 `stream_mode` (`values`/`updates`/`messages`/`events`/…), `multitask_strategy`
