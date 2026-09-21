@@ -25,7 +25,8 @@ The public surface is small: **`create_app`**, **`SkeinoSettings`**,
 **`from_langgraph_json`**, **`GraphRegistry`** (all importable from `skeino`).
 
 > Targets skeino **3.0.0+** — **3.0.1+** for graphs that pause on `interrupt()`
-> (see Human-in-the-loop, below). **3.0.0 is breaking:** `POST /threads/{id}/runs` no
+> (see Human-in-the-loop, below), **3.1.0+** for in-Studio traces (see
+> LangGraph Studio tracing, below). **3.0.0 is breaking:** `POST /threads/{id}/runs` no
 > longer runs to completion — it now starts the graph in a background task and
 > returns immediately with a `pending`/`running` run. Get the old blocking
 > behavior from the new `POST /threads/{id}/runs/wait` (see Runs, below).
@@ -236,6 +237,20 @@ Or raw HTTP. Key endpoints:
   `GET /threads/{id}/runs` lists them.
 - **Assistants / meta:** `POST /assistants/search`,
   `GET /assistants/{id}/schemas`, `GET /api/health`, `GET /info`.
+
+### LangGraph Studio tracing (3.1.0+)
+
+Studio shows in-app traces only when `GET /info` advertises
+`flags.langsmith_tracing_session_on_runs` — otherwise it warns "Studio tracing
+requires langgraph-api 0.11.0 or later with session-name tracing enabled".
+From 3.1.0 `/info` returns langgraph-api's `langgraph_py_version`, `flags` and
+`host` alongside `{status, name, version}`, and runs accept Studio's
+`langsmith_tracer: {project_name, example_id}`: with LangSmith tracing enabled
+for the server process (`LANGSMITH_TRACING=true` + an API key), the run's trace
+is written to that project **and** the server's default one, and the run
+reports it as `langsmith_session_name`. With tracing off, the field is accepted
+and ignored and `flags.langsmith` is `false`. `version` is your
+`SkeinoSettings.server_version`, not a langgraph-api version.
 
 ### Human-in-the-loop (`interrupt()`)
 
