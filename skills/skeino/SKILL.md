@@ -26,7 +26,8 @@ The public surface is small: **`create_app`**, **`SkeinoSettings`**,
 
 > Targets skeino **3.0.0+** — **3.0.1+** for graphs that pause on `interrupt()`
 > (see Human-in-the-loop, below), **3.1.0+** for in-Studio traces (see
-> LangGraph Studio tracing, below). **3.0.0 is breaking:** `POST /threads/{id}/runs` no
+> LangGraph Studio tracing, below), **3.1.1+** for `runs/wait` and `join`
+> output that reports a paused run. **3.0.0 is breaking:** `POST /threads/{id}/runs` no
 > longer runs to completion — it now starts the graph in a background task and
 > returns immediately with a `pending`/`running` run. Get the old blocking
 > behavior from the new `POST /threads/{id}/runs/wait` (see Runs, below).
@@ -230,7 +231,8 @@ Or raw HTTP. Key endpoints:
   `POST /threads/{id}/runs/wait` runs to completion and returns the final
   graph state values (the old synchronous behavior). `GET
   /threads/{id}/runs/{run_id}/join` waits for an in-flight run to finish and
-  returns its output. `POST /threads/{id}/runs/{run_id}/cancel?action=interrupt|rollback`
+  returns its output. Both add `__interrupt__` when the run ended paused
+  (3.1.1+; see Human-in-the-loop). `POST /threads/{id}/runs/{run_id}/cancel?action=interrupt|rollback`
   cancels it (`rollback` also deletes the run row); `DELETE
   /threads/{id}/runs/{run_id}` removes a terminal run (409 if still active).
   `POST /threads/{id}/runs/stream` streams SSE (`event:`/`data:` frames).
@@ -263,6 +265,11 @@ pause on the way to the client):
   `useStream().interrupt` reads.
 - The thread's `status` becomes `interrupted`, and the request stays readable in
   the thread's `interrupts` and in its state's `tasks[].interrupts`.
+- `POST /runs/wait` and `GET /runs/{run_id}/join` output carries the same
+  `__interrupt__` list alongside the state values (3.1.1+; before that, their
+  output looked like a completed run's, so check thread `status` on older
+  servers). A completed run's output has no `__interrupt__` key at all, so its
+  presence alone means "paused, resume me".
 - Resume with another run on the same thread carrying
   `{"command": {"resume": <decision>}}`; `interrupt()` returns `<decision>` when
   the node replays.
