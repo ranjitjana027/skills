@@ -65,6 +65,7 @@
       "source": "./",
       "strict": false,
       "skills": [
+        "./skills/langgraph",
         "./skills/langgraph/langgraph-python-core",
         "./skills/langgraph/langgraph-python-patterns",
         "./skills/langgraph/langgraph-python-production",
